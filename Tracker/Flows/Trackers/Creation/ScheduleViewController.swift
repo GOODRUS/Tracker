@@ -7,9 +7,13 @@
 
 import UIKit
 
+// MARK: - ScheduleSelectionDelegate
+
 protocol ScheduleSelectionDelegate: AnyObject {
     func didSelectSchedule(_ weekdays: [Weekday])
 }
+
+// MARK: - ScheduleViewController
 
 final class ScheduleViewController: UIViewController {
 
@@ -98,6 +102,8 @@ final class ScheduleViewController: UIViewController {
         dismiss(animated: true)
     }
 
+    // MARK: - Helpers
+
     private func title(for weekday: Weekday) -> String {
         switch weekday {
         case .monday: return "Понедельник"
@@ -134,6 +140,7 @@ extension ScheduleViewController: UITableViewDataSource {
         let switchView = UISwitch()
         switchView.isOn = selectedWeekdays.contains(weekday)
         switchView.tag = weekday.rawValue
+        switchView.onTintColor = UIColor(red: 0.22, green: 0.45, blue: 0.91, alpha: 1)
         switchView.addTarget(self, action: #selector(switchChanged(_:)), for: .valueChanged)
         cell.accessoryView = switchView
 
@@ -149,6 +156,8 @@ extension ScheduleViewController: UITableViewDelegate {
                    heightForRowAt indexPath: IndexPath) -> CGFloat {
         75
     }
+
+    // MARK: - Switch Handling
 
     @objc private func switchChanged(_ sender: UISwitch) {
         guard let weekday = Weekday(rawValue: sender.tag) else { return }

@@ -7,9 +7,15 @@
 
 import UIKit
 
+// MARK: - TrackerSectionHeader
+
 final class TrackerSectionHeader: UICollectionReusableView {
 
+    // MARK: - Static
+
     static let reuseIdentifier = "TrackerSectionHeader"
+
+    // MARK: - UI
 
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -19,6 +25,8 @@ final class TrackerSectionHeader: UICollectionReusableView {
         return label
     }()
 
+    // MARK: - Init
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         addSubview(titleLabel)
@@ -26,7 +34,6 @@ final class TrackerSectionHeader: UICollectionReusableView {
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 44),
             titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            // смещаем центр надписи вниз на пару поинтов
             titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor, constant: 18)
         ])
     }
@@ -34,6 +41,8 @@ final class TrackerSectionHeader: UICollectionReusableView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    // MARK: - Configure
 
     func configure(title: String) {
         titleLabel.text = title

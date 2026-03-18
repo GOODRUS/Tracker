@@ -7,6 +7,8 @@
 
 import UIKit
 
+// MARK: - CategorySelectionViewController
+
 final class CategorySelectionViewController: UIViewController {
 
     // MARK: - Properties

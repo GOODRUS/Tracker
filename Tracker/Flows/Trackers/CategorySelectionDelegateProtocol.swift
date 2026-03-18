@@ -7,6 +7,8 @@
 
 import UIKit
 
+// MARK: - CategorySelectionDelegate
+
 protocol CategorySelectionDelegate: AnyObject {
     func didSelectCategory(_ category: String)
 }

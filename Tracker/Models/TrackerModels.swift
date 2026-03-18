@@ -7,9 +7,8 @@
 
 import UIKit
 
-// MARK: - Расписание
+// MARK: - Weekday (Расписание)
 
-/// День недели для расписания (понедельник–воскресенье)
 enum Weekday: Int, CaseIterable {
     case monday = 1
     case tuesday
@@ -20,26 +19,21 @@ enum Weekday: Int, CaseIterable {
     case sunday
 }
 
-// MARK: - Модели
+// MARK: - Models
 
-/// Трекер (привычка или нерегулярное событие)
 struct Tracker {
     let id: UUID
     let name: String
     let color: UIColor
     let emoji: String
-    /// Расписание: в какие дни действует трекер.
-    /// Для нерегулярных событий можно хранить [].
     let schedule: [Weekday]
 }
 
-/// Категория трекеров
 struct TrackerCategory {
     let title: String
     let trackers: [Tracker]
 }
 
-/// Запись о выполнении трекера в конкретную дату
 struct TrackerRecord {
     let trackerId: UUID
     let date: Date

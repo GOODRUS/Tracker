@@ -7,13 +7,19 @@
 
 import UIKit
 
+// MARK: - TrackerType
+
 enum TrackerType {
     case habit
     case irregular
 }
 
+// MARK: - TrackerCreationViewController
+
 final class TrackerCreationViewController: UIViewController {
     
+    // MARK: - Delegates
+
     weak var creationDelegate: TrackerCreationDelegate?
 
     // MARK: - Properties
@@ -157,7 +163,7 @@ final class TrackerCreationViewController: UIViewController {
         nameTextField.becomeFirstResponder()
     }
     
-    // MARK: - ScheduleText
+    // MARK: - Schedule Text
     
     private func scheduleText() -> String? {
         guard !selectedWeekdays.isEmpty else { return nil }
@@ -306,14 +312,13 @@ final class TrackerCreationViewController: UIViewController {
             !trackerName.trimmingCharacters(in: .whitespaces).isEmpty
         else { return }
 
-        // Для нерегулярного события расписание оставим пустым
         let schedule = trackerType == .habit ? selectedWeekdays : []
 
         let tracker = Tracker(
             id: UUID(),
             name: trackerName.trimmingCharacters(in: .whitespaces),
-            color: UIColor(red: 0.2, green: 0.8, blue: 0.4, alpha: 1), // пока дефолтный цвет
-            emoji: "😊",             // временно, позже добавим выбор эмодзи
+            color: UIColor(red: 0.2, green: 0.8, blue: 0.4, alpha: 1),
+            emoji: "😊",
             schedule: schedule
         )
 
