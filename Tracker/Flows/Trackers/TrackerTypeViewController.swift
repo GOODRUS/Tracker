@@ -7,8 +7,12 @@
 
 import UIKit
 
+// MARK: - TrackerTypeViewController
+
 final class TrackerTypeViewController: UIViewController {
     
+    // MARK: - Delegates
+
     weak var creationDelegate: TrackerCreationDelegate?
 
     // MARK: - UI

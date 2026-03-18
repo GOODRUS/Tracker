@@ -7,6 +7,8 @@
 
 import UIKit
 
+// MARK: - TrackersViewController
+
 final class TrackersViewController: UIViewController {
 
     // MARK: - Data
@@ -14,7 +16,6 @@ final class TrackersViewController: UIViewController {
     private var categories: [TrackerCategory] = []
     private var completedTrackers: [TrackerRecord] = []
 
-    // Текущая выбранная дата
     private var currentDate: Date = Date() {
         didSet {
             collectionView.reloadData()
@@ -22,19 +23,16 @@ final class TrackersViewController: UIViewController {
         }
     }
 
-    /// Категории, отфильтрованные по выбранной дате (дню недели)
     private var visibleCategories: [TrackerCategory] {
         let calendar = Calendar.current
         let weekdayNumber = calendar.component(.weekday, from: currentDate)
 
-        // В enum Weekday: monday = 1 ... sunday = 7
         guard let weekday = Weekday(rawValue: weekdayNumber) else {
             return categories
         }
 
         return categories.compactMap { category in
             let trackersForDay = category.trackers.filter { tracker in
-                // Нерегулярные события (schedule.isEmpty) показываем всегда
                 tracker.schedule.isEmpty || tracker.schedule.contains(weekday)
             }
 
@@ -45,7 +43,6 @@ final class TrackersViewController: UIViewController {
 
     // MARK: - UI
 
-    // Заголовок "Трекеры"
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Трекеры"
@@ -55,7 +52,6 @@ final class TrackersViewController: UIViewController {
         return label
     }()
 
-    // Compact UIDatePicker, расположен напротив заголовка
     private let datePicker: UIDatePicker = {
         let picker = UIDatePicker()
         picker.datePickerMode = .date
@@ -66,7 +62,6 @@ final class TrackersViewController: UIViewController {
         return picker
     }()
 
-    // Поле поиска
     private let searchContainer: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor(red: 0.96, green: 0.97, blue: 0.98, alpha: 1)
@@ -91,7 +86,6 @@ final class TrackersViewController: UIViewController {
         return label
     }()
 
-    // Коллекция
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -120,7 +114,6 @@ final class TrackersViewController: UIViewController {
         return collectionView
     }()
 
-    // Заглушка Star
     private let placeholderImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "Star")
@@ -139,7 +132,6 @@ final class TrackersViewController: UIViewController {
         return label
     }()
 
-    // Кнопка "Фильтры"
     private let filtersButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Фильтры", for: .normal)
@@ -207,7 +199,6 @@ final class TrackersViewController: UIViewController {
         navigationController?.navigationBar.prefersLargeTitles = false
     }
 
-    /// Заголовок и UIDatePicker на одном уровне
     private func setupTopTitleAndDate() {
         view.addSubview(titleLabel)
         view.addSubview(datePicker)

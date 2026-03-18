@@ -7,7 +7,11 @@
 
 import UIKit
 
+// MARK: - StatisticsViewController
+
 final class StatisticsViewController: UIViewController {
+
+    // MARK: - UI Elements
 
     private let placeholderLabel: UILabel = {
         let label = UILabel()
@@ -19,11 +23,15 @@ final class StatisticsViewController: UIViewController {
         return label
     }()
 
+    // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         setupLayout()
     }
+
+    // MARK: - Layout
 
     private func setupLayout() {
         view.addSubview(placeholderLabel)

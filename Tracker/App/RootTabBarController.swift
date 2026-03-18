@@ -7,13 +7,19 @@
 
 import UIKit
 
+// MARK: - RootTabBarController
+
 final class RootTabBarController: UITabBarController {
+
+    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTabs()
         setupAppearance()
     }
+
+    // MARK: - Setup Tabs
 
     private func setupTabs() {
         let trackersVC = TrackersViewController()
@@ -25,7 +31,7 @@ final class RootTabBarController: UITabBarController {
         let trackersNav = UINavigationController(rootViewController: trackersVC)
         let statisticsNav = UINavigationController(rootViewController: statisticsVC)
 
-        // MARK: - Иконка "Трекеры"
+        // MARK: - Trackers Tab Icon
 
         var trackersImage = UIImage(named: "record.circle.fill")
         if let baseImage = trackersImage {
@@ -39,7 +45,7 @@ final class RootTabBarController: UITabBarController {
             selectedImage: trackersImage?.withRenderingMode(.alwaysTemplate)
         )
 
-        // MARK: - Иконка "Статистика"
+        // MARK: - Statistics Tab Icon
 
         var statisticsImage = UIImage(named: "hare.fill")
         if let baseImage = statisticsImage {
@@ -56,9 +62,11 @@ final class RootTabBarController: UITabBarController {
         viewControllers = [trackersNav, statisticsNav]
     }
 
+    // MARK: - Appearance
+
     private func setupAppearance() {
-        let activeColor = UIColor(red: 0.22, green: 0.49, blue: 0.91, alpha: 1)       // #3772E7
-        let inactiveColor = UIColor(red: 0.68, green: 0.69, blue: 0.71, alpha: 1)     // #AEAFB4
+        let activeColor = UIColor(red: 0.22, green: 0.49, blue: 0.91, alpha: 1)
+        let inactiveColor = UIColor(red: 0.68, green: 0.69, blue: 0.71, alpha: 1)    
 
         tabBar.tintColor = activeColor
         tabBar.unselectedItemTintColor = inactiveColor
@@ -67,7 +75,7 @@ final class RootTabBarController: UITabBarController {
             let appearance = UITabBarAppearance()
             appearance.configureWithOpaqueBackground()
             appearance.backgroundColor = .systemBackground
-            appearance.shadowColor = UIColor(red: 0.84, green: 0.84, blue: 0.86, alpha: 1) // линия над TabBar
+            appearance.shadowColor = UIColor(red: 0.84, green: 0.84, blue: 0.86, alpha: 1)
 
             appearance.stackedLayoutAppearance.selected.iconColor = activeColor
             appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
