@@ -22,12 +22,26 @@ final class TrackersViewController: UIViewController {
             updatePlaceholderVisibility()
         }
     }
+    
+    private func weekdayForDate(_ date: Date) -> Weekday? {
+        let calendar = Calendar.current
+        // systemWeekday: 1 = Sunday, 2 = Monday, ..., 7 = Saturday
+        let systemWeekday = calendar.component(.weekday, from: date)
+
+        switch systemWeekday {
+        case 1: return .sunday
+        case 2: return .monday
+        case 3: return .tuesday
+        case 4: return .wednesday
+        case 5: return .thursday
+        case 6: return .friday
+        case 7: return .saturday
+        default: return nil
+        }
+    }
 
     private var visibleCategories: [TrackerCategory] {
-        let calendar = Calendar.current
-        let weekdayNumber = calendar.component(.weekday, from: currentDate)
-
-        guard let weekday = Weekday(rawValue: weekdayNumber) else {
+        guard let weekday = weekdayForDate(currentDate) else {
             return categories
         }
 
