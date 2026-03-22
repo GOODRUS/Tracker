@@ -25,7 +25,6 @@ final class TrackersViewController: UIViewController {
     
     private func weekdayForDate(_ date: Date) -> Weekday? {
         let calendar = Calendar.current
-        // systemWeekday: 1 = Sunday, 2 = Monday, ..., 7 = Saturday
         let systemWeekday = calendar.component(.weekday, from: date)
 
         switch systemWeekday {
@@ -140,7 +139,7 @@ final class TrackersViewController: UIViewController {
         let label = UILabel()
         label.text = "Что будем отслеживать?"
         label.textAlignment = .center
-        label.textColor = .secondaryLabel
+        label.textColor = UIColor(red: 0.10, green: 0.11, blue: 0.13, alpha: 1)
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

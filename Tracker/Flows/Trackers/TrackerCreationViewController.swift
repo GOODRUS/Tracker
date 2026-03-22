@@ -296,8 +296,8 @@ final class TrackerCreationViewController: UIViewController {
 
         createButton.isEnabled = enabled
         createButton.backgroundColor = enabled
-        ? UIColor(red: 0.22, green: 0.49, blue: 0.91, alpha: 1)
-        : UIColor.systemGray3
+        ? UIColor(red: 0.10, green: 0.11, blue: 0.13, alpha: 1)
+        : UIColor.systemGray3                                    
     }
 
     // MARK: - Actions
