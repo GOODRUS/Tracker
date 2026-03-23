@@ -65,7 +65,6 @@ final class TrackersViewController: UIViewController {
         return label
     }()
 
-    // UIDatePicker в навбаре
     private let datePicker: UIDatePicker = {
         let picker = UIDatePicker()
         picker.datePickerMode = .date
@@ -154,7 +153,7 @@ final class TrackersViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white   // фиксируем белый фон
+        view.backgroundColor = .white
 
         setupNavigationBar()
         setupTopTitleAndDate()
@@ -169,7 +168,6 @@ final class TrackersViewController: UIViewController {
     private func setupNavigationBar() {
         navigationItem.title = nil
 
-        // левая кнопка "+"
         let plusConfig = UIImage.SymbolConfiguration(pointSize: 19, weight: .medium)
         let plusImage = UIImage(systemName: "plus")?.applyingSymbolConfiguration(plusConfig)
 
@@ -181,7 +179,6 @@ final class TrackersViewController: UIViewController {
         )
         navigationItem.leftBarButtonItem = addButtonItem
 
-        // правый элемент — компактный UIDatePicker
         datePicker.date = currentDate
         datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
@@ -192,7 +189,7 @@ final class TrackersViewController: UIViewController {
         if #available(iOS 15.0, *) {
             let appearance = UINavigationBarAppearance()
             appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = .white          // header строго белый
+            appearance.backgroundColor = .white
             appearance.shadowColor = .clear
             appearance.titleTextAttributes = [
                 .foregroundColor: blackColor,
@@ -282,17 +279,17 @@ final class TrackersViewController: UIViewController {
         collectionView.isHidden = !hasTrackers
     }
 
-    // MARK: - Helpers (completion)
+    // MARK: - Helpers
 
     private func completedCount(for tracker: Tracker) -> Int {
         completedTrackers.filter { $0.trackerId == tracker.id }.count
     }
 
-    private func isCompletedToday(_ tracker: Tracker) -> Bool {
+    private func isCompletedOnSelectedDate(_ tracker: Tracker) -> Bool {
         let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
+        let selectedDay = calendar.startOfDay(for: currentDate)
         return completedTrackers.contains {
-            $0.trackerId == tracker.id && calendar.isDate($0.date, inSameDayAs: today)
+            $0.trackerId == tracker.id && calendar.isDate($0.date, inSameDayAs: selectedDay)
         }
     }
 
@@ -357,11 +354,11 @@ extension TrackersViewController: UICollectionViewDataSource {
 
         let tracker = visibleCategories[indexPath.section].trackers[indexPath.item]
         let days = completedCount(for: tracker)
-        let completedToday = isCompletedToday(tracker)
+        let isCompleted = isCompletedOnSelectedDate(tracker)
 
         cell.configure(with: tracker,
                        completedDays: days,
-                       isCompletedToday: completedToday)
+                       isCompletedToday: isCompleted)
         cell.delegate = self
 
         return cell
@@ -431,10 +428,10 @@ extension TrackersViewController: TrackerCellDelegate {
 
         let updatedTracker = visibleCategories[indexPath.section].trackers[indexPath.item]
         let days = completedCount(for: updatedTracker)
-        let completedToday = isCompletedToday(updatedTracker)
+        let isCompleted = isCompletedOnSelectedDate(updatedTracker)
 
         cell.configure(with: updatedTracker,
                        completedDays: days,
-                       isCompletedToday: completedToday)
+                       isCompletedToday: isCompleted)
     }
 }

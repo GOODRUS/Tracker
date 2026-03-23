@@ -31,7 +31,6 @@ final class RootTabBarController: UITabBarController {
         let trackersNav = UINavigationController(rootViewController: trackersVC)
         let statisticsNav = UINavigationController(rootViewController: statisticsVC)
 
-        // Trackers Tab Icon
         let trackersConfig = UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
         let trackersImage = UIImage(
             systemName: "record.circle.fill",
@@ -44,7 +43,6 @@ final class RootTabBarController: UITabBarController {
             selectedImage: trackersImage
         )
 
-        // Statistics Tab Icon
         let statisticsConfig = UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)
         let statisticsImage = UIImage(
             systemName: "hare.fill",
@@ -72,7 +70,7 @@ final class RootTabBarController: UITabBarController {
         if #available(iOS 15.0, *) {
             let appearance = UITabBarAppearance()
             appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = .systemBackground
+            appearance.backgroundColor = .white
             appearance.shadowColor = UIColor(red: 0.84, green: 0.84, blue: 0.86, alpha: 1)
 
             appearance.stackedLayoutAppearance.selected.iconColor = activeColor

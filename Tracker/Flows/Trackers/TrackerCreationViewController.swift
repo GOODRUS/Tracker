@@ -33,7 +33,6 @@ final class TrackerCreationViewController: UIViewController {
 
     private let trackerType: TrackerType
 
-    // состояние
     private var trackerName: String = "" {
         didSet { updateCreateButtonState() }
     }
@@ -45,7 +44,6 @@ final class TrackerCreationViewController: UIViewController {
         }
     }
 
-    /// Вместо transform используем нижний констрейнт для кнопок
     private var bottomButtonsConstraint: NSLayoutConstraint?
     
     // MARK: - Init
