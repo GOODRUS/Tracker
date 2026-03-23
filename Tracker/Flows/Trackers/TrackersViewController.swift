@@ -60,24 +60,29 @@ final class TrackersViewController: UIViewController {
         let label = UILabel()
         label.text = "Трекеры"
         label.font = UIFont.systemFont(ofSize: 34, weight: .bold)
-        label.textColor = UIColor(red: 0.10, green: 0.11, blue: 0.13, alpha: 1) // #1A1B22
+        label.textColor = UIColor(red: 0.10, green: 0.11, blue: 0.13, alpha: 1)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
+    // UIDatePicker в навбаре
     private let datePicker: UIDatePicker = {
         let picker = UIDatePicker()
         picker.datePickerMode = .date
         picker.preferredDatePickerStyle = .compact
         picker.locale = Locale(identifier: "ru_RU")
         picker.tintColor = UIColor(red: 0.22, green: 0.49, blue: 0.91, alpha: 1)
-        picker.translatesAutoresizingMaskIntoConstraints = false
         return picker
     }()
 
     private let searchContainer: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(red: 0.96, green: 0.97, blue: 0.98, alpha: 1)
+        view.backgroundColor = UIColor(
+            red: 0x76 / 255.0,
+            green: 0x76 / 255.0,
+            blue: 0x80 / 255.0,
+            alpha: 0.12
+        )
         view.layer.cornerRadius = 10
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -108,7 +113,7 @@ final class TrackersViewController: UIViewController {
         layout.headerReferenceSize = CGSize(width: view.bounds.width, height: 34)
 
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = .systemBackground
+        collectionView.backgroundColor = .white
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -145,33 +150,16 @@ final class TrackersViewController: UIViewController {
         return label
     }()
 
-    private let filtersButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Фильтры", for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
-        button.backgroundColor = UIColor(red: 0.22, green: 0.49, blue: 0.91, alpha: 1)
-        button.layer.cornerRadius = 16
-        button.translatesAutoresizingMaskIntoConstraints = false
-
-        if #available(iOS 15.0, *) {
-            button.configuration = nil
-        }
-
-        return button
-    }()
-
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .white   // фиксируем белый фон
 
         setupNavigationBar()
         setupTopTitleAndDate()
         setupSearchField()
         setupLayout()
-        setupFiltersButton()
         updatePlaceholderVisibility()
     }
     
@@ -181,6 +169,7 @@ final class TrackersViewController: UIViewController {
     private func setupNavigationBar() {
         navigationItem.title = nil
 
+        // левая кнопка "+"
         let plusConfig = UIImage.SymbolConfiguration(pointSize: 19, weight: .medium)
         let plusImage = UIImage(systemName: "plus")?.applyingSymbolConfiguration(plusConfig)
 
@@ -192,13 +181,18 @@ final class TrackersViewController: UIViewController {
         )
         navigationItem.leftBarButtonItem = addButtonItem
 
+        // правый элемент — компактный UIDatePicker
+        datePicker.date = currentDate
+        datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
+
         let blackColor = UIColor(red: 0.10, green: 0.11, blue: 0.13, alpha: 1)
         navigationController?.navigationBar.tintColor = blackColor
 
         if #available(iOS 15.0, *) {
             let appearance = UINavigationBarAppearance()
             appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = .systemBackground
+            appearance.backgroundColor = .white          // header строго белый
             appearance.shadowColor = .clear
             appearance.titleTextAttributes = [
                 .foregroundColor: blackColor,
@@ -207,6 +201,7 @@ final class TrackersViewController: UIViewController {
             navigationController?.navigationBar.standardAppearance = appearance
             navigationController?.navigationBar.scrollEdgeAppearance = appearance
         } else {
+            navigationController?.navigationBar.barTintColor = .white
             navigationController?.navigationBar.shadowImage = UIImage()
         }
 
@@ -215,18 +210,11 @@ final class TrackersViewController: UIViewController {
 
     private func setupTopTitleAndDate() {
         view.addSubview(titleLabel)
-        view.addSubview(datePicker)
 
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 1),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-
-            datePicker.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
-            datePicker.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16)
         ])
-
-        datePicker.date = currentDate
-        datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
     }
 
     private func applySelectedDate(_ date: Date) {
@@ -286,27 +274,12 @@ final class TrackersViewController: UIViewController {
         ])
     }
 
-    private func setupFiltersButton() {
-        view.addSubview(filtersButton)
-
-        filtersButton.addTarget(self, action: #selector(filtersButtonTapped), for: .touchUpInside)
-
-        NSLayoutConstraint.activate([
-            filtersButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            filtersButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
-            filtersButton.heightAnchor.constraint(equalToConstant: 50),
-            filtersButton.widthAnchor.constraint(equalToConstant: 114)
-        ])
-    }
-
     private func updatePlaceholderVisibility() {
         let hasTrackers = visibleCategories.contains { !$0.trackers.isEmpty }
 
         placeholderImageView.isHidden = hasTrackers
         placeholderLabel.isHidden = hasTrackers
         collectionView.isHidden = !hasTrackers
-
-        filtersButton.isHidden = !hasTrackers
     }
 
     // MARK: - Helpers (completion)
@@ -354,10 +327,6 @@ final class TrackersViewController: UIViewController {
         }
 
         present(typeVC, animated: true)
-    }
-
-    @objc private func filtersButtonTapped() {
-        print("Фильтры нажаты")
     }
 
     @objc private func datePickerValueChanged(_ sender: UIDatePicker) {

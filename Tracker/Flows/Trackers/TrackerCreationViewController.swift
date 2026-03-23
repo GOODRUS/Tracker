@@ -45,8 +45,9 @@ final class TrackerCreationViewController: UIViewController {
         }
     }
 
-    private var keyboardOffset: CGFloat = 0
-
+    /// Вместо transform используем нижний констрейнт для кнопок
+    private var bottomButtonsConstraint: NSLayoutConstraint?
+    
     // MARK: - Init
 
     init(trackerType: TrackerType) {
@@ -163,6 +164,10 @@ final class TrackerCreationViewController: UIViewController {
         nameTextField.becomeFirstResponder()
     }
     
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
     // MARK: - Schedule Text
     
     private func scheduleText() -> String? {
@@ -216,6 +221,11 @@ final class TrackerCreationViewController: UIViewController {
 
         let tableHeight: CGFloat = trackerType == .habit ? 150 : 75
 
+        bottomButtonsConstraint = cancelButton.bottomAnchor.constraint(
+            equalTo: view.safeAreaLayoutGuide.bottomAnchor,
+            constant: -16
+        )
+
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -244,7 +254,7 @@ final class TrackerCreationViewController: UIViewController {
             tableView.bottomAnchor.constraint(equalTo: tableBackgroundView.bottomAnchor),
 
             cancelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            cancelButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            bottomButtonsConstraint!,
             cancelButton.heightAnchor.constraint(equalToConstant: 60),
 
             createButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
@@ -297,7 +307,7 @@ final class TrackerCreationViewController: UIViewController {
         createButton.isEnabled = enabled
         createButton.backgroundColor = enabled
         ? UIColor(red: 0.10, green: 0.11, blue: 0.13, alpha: 1)
-        : UIColor.systemGray3                                    
+        : UIColor.systemGray3
     }
 
     // MARK: - Actions
@@ -345,6 +355,8 @@ final class TrackerCreationViewController: UIViewController {
         view.endEditing(true)
     }
 
+    // MARK: - Keyboard
+
     @objc private func keyboardWillShow(_ notification: Notification) {
         guard
             let userInfo = notification.userInfo,
@@ -354,20 +366,18 @@ final class TrackerCreationViewController: UIViewController {
         let keyboardFrame = frameValue.cgRectValue
         let keyboardHeight = keyboardFrame.height
 
-        if keyboardOffset == 0 {
-            keyboardOffset = keyboardHeight / 3
-            UIView.animate(withDuration: 0.3) {
-                self.view.transform = CGAffineTransform(translationX: 0, y: -self.keyboardOffset)
-            }
+        // поднимаем блок кнопок над клавиатурой
+        bottomButtonsConstraint?.constant = -(keyboardHeight + 16)
+
+        UIView.animate(withDuration: 0.3) {
+            self.view.layoutIfNeeded()
         }
     }
 
     @objc private func keyboardWillHide(_ notification: Notification) {
-        if keyboardOffset != 0 {
-            UIView.animate(withDuration: 0.3) {
-                self.view.transform = .identity
-            }
-            keyboardOffset = 0
+        bottomButtonsConstraint?.constant = -16
+        UIView.animate(withDuration: 0.3) {
+            self.view.layoutIfNeeded()
         }
     }
 }
