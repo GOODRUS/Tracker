@@ -7,6 +7,8 @@
 
 import UIKit
 
+// MARK: - TrackersViewController
+
 final class TrackersViewController: UIViewController {
 
     // MARK: - Data
@@ -14,27 +16,36 @@ final class TrackersViewController: UIViewController {
     private var categories: [TrackerCategory] = []
     private var completedTrackers: [TrackerRecord] = []
 
-    // Текущая выбранная дата
     private var currentDate: Date = Date() {
         didSet {
             collectionView.reloadData()
             updatePlaceholderVisibility()
         }
     }
-
-    /// Категории, отфильтрованные по выбранной дате (дню недели)
-    private var visibleCategories: [TrackerCategory] {
+    
+    private func weekdayForDate(_ date: Date) -> Weekday? {
         let calendar = Calendar.current
-        let weekdayNumber = calendar.component(.weekday, from: currentDate)
+        let systemWeekday = calendar.component(.weekday, from: date)
 
-        // В enum Weekday: monday = 1 ... sunday = 7
-        guard let weekday = Weekday(rawValue: weekdayNumber) else {
+        switch systemWeekday {
+        case 1: return .sunday
+        case 2: return .monday
+        case 3: return .tuesday
+        case 4: return .wednesday
+        case 5: return .thursday
+        case 6: return .friday
+        case 7: return .saturday
+        default: return nil
+        }
+    }
+
+    private var visibleCategories: [TrackerCategory] {
+        guard let weekday = weekdayForDate(currentDate) else {
             return categories
         }
 
         return categories.compactMap { category in
             let trackersForDay = category.trackers.filter { tracker in
-                // Нерегулярные события (schedule.isEmpty) показываем всегда
                 tracker.schedule.isEmpty || tracker.schedule.contains(weekday)
             }
 
@@ -45,31 +56,32 @@ final class TrackersViewController: UIViewController {
 
     // MARK: - UI
 
-    // Заголовок "Трекеры"
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Трекеры"
         label.font = UIFont.systemFont(ofSize: 34, weight: .bold)
-        label.textColor = UIColor(red: 0.10, green: 0.11, blue: 0.13, alpha: 1) // #1A1B22
+        label.textColor = UIColor(red: 0.10, green: 0.11, blue: 0.13, alpha: 1)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
-    // Compact UIDatePicker, расположен напротив заголовка
     private let datePicker: UIDatePicker = {
         let picker = UIDatePicker()
         picker.datePickerMode = .date
         picker.preferredDatePickerStyle = .compact
         picker.locale = Locale(identifier: "ru_RU")
         picker.tintColor = UIColor(red: 0.22, green: 0.49, blue: 0.91, alpha: 1)
-        picker.translatesAutoresizingMaskIntoConstraints = false
         return picker
     }()
 
-    // Поле поиска
     private let searchContainer: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(red: 0.96, green: 0.97, blue: 0.98, alpha: 1)
+        view.backgroundColor = UIColor(
+            red: 0x76 / 255.0,
+            green: 0x76 / 255.0,
+            blue: 0x80 / 255.0,
+            alpha: 0.12
+        )
         view.layer.cornerRadius = 10
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -91,7 +103,6 @@ final class TrackersViewController: UIViewController {
         return label
     }()
 
-    // Коллекция
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -101,7 +112,7 @@ final class TrackersViewController: UIViewController {
         layout.headerReferenceSize = CGSize(width: view.bounds.width, height: 34)
 
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = .systemBackground
+        collectionView.backgroundColor = .white
         collectionView.dataSource = self
         collectionView.delegate = self
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -120,7 +131,6 @@ final class TrackersViewController: UIViewController {
         return collectionView
     }()
 
-    // Заглушка Star
     private let placeholderImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "Star")
@@ -133,42 +143,25 @@ final class TrackersViewController: UIViewController {
         let label = UILabel()
         label.text = "Что будем отслеживать?"
         label.textAlignment = .center
-        label.textColor = .secondaryLabel
+        label.textColor = UIColor(red: 0.10, green: 0.11, blue: 0.13, alpha: 1)
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
-    }()
-
-    // Кнопка "Фильтры"
-    private let filtersButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Фильтры", for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
-        button.backgroundColor = UIColor(red: 0.22, green: 0.49, blue: 0.91, alpha: 1)
-        button.layer.cornerRadius = 16
-        button.translatesAutoresizingMaskIntoConstraints = false
-
-        if #available(iOS 15.0, *) {
-            button.configuration = nil
-        }
-
-        return button
     }()
 
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .white
 
         setupNavigationBar()
         setupTopTitleAndDate()
         setupSearchField()
         setupLayout()
-        setupFiltersButton()
         updatePlaceholderVisibility()
     }
+    
 
     // MARK: - Setup
 
@@ -186,13 +179,17 @@ final class TrackersViewController: UIViewController {
         )
         navigationItem.leftBarButtonItem = addButtonItem
 
+        datePicker.date = currentDate
+        datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
+
         let blackColor = UIColor(red: 0.10, green: 0.11, blue: 0.13, alpha: 1)
         navigationController?.navigationBar.tintColor = blackColor
 
         if #available(iOS 15.0, *) {
             let appearance = UINavigationBarAppearance()
             appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = .systemBackground
+            appearance.backgroundColor = .white
             appearance.shadowColor = .clear
             appearance.titleTextAttributes = [
                 .foregroundColor: blackColor,
@@ -201,27 +198,20 @@ final class TrackersViewController: UIViewController {
             navigationController?.navigationBar.standardAppearance = appearance
             navigationController?.navigationBar.scrollEdgeAppearance = appearance
         } else {
+            navigationController?.navigationBar.barTintColor = .white
             navigationController?.navigationBar.shadowImage = UIImage()
         }
 
         navigationController?.navigationBar.prefersLargeTitles = false
     }
 
-    /// Заголовок и UIDatePicker на одном уровне
     private func setupTopTitleAndDate() {
         view.addSubview(titleLabel)
-        view.addSubview(datePicker)
 
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 1),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-
-            datePicker.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),
-            datePicker.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16)
         ])
-
-        datePicker.date = currentDate
-        datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
     }
 
     private func applySelectedDate(_ date: Date) {
@@ -281,40 +271,25 @@ final class TrackersViewController: UIViewController {
         ])
     }
 
-    private func setupFiltersButton() {
-        view.addSubview(filtersButton)
-
-        filtersButton.addTarget(self, action: #selector(filtersButtonTapped), for: .touchUpInside)
-
-        NSLayoutConstraint.activate([
-            filtersButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            filtersButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
-            filtersButton.heightAnchor.constraint(equalToConstant: 50),
-            filtersButton.widthAnchor.constraint(equalToConstant: 114)
-        ])
-    }
-
     private func updatePlaceholderVisibility() {
         let hasTrackers = visibleCategories.contains { !$0.trackers.isEmpty }
 
         placeholderImageView.isHidden = hasTrackers
         placeholderLabel.isHidden = hasTrackers
         collectionView.isHidden = !hasTrackers
-
-        filtersButton.isHidden = !hasTrackers
     }
 
-    // MARK: - Helpers (completion)
+    // MARK: - Helpers
 
     private func completedCount(for tracker: Tracker) -> Int {
         completedTrackers.filter { $0.trackerId == tracker.id }.count
     }
 
-    private func isCompletedToday(_ tracker: Tracker) -> Bool {
+    private func isCompletedOnSelectedDate(_ tracker: Tracker) -> Bool {
         let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
+        let selectedDay = calendar.startOfDay(for: currentDate)
         return completedTrackers.contains {
-            $0.trackerId == tracker.id && calendar.isDate($0.date, inSameDayAs: today)
+            $0.trackerId == tracker.id && calendar.isDate($0.date, inSameDayAs: selectedDay)
         }
     }
 
@@ -344,15 +319,11 @@ final class TrackersViewController: UIViewController {
 
         if let sheet = typeVC.sheetPresentationController {
             sheet.detents = [.large()]
-            sheet.prefersGrabberVisible = true
+            sheet.prefersGrabberVisible = false
             sheet.preferredCornerRadius = 16
         }
 
         present(typeVC, animated: true)
-    }
-
-    @objc private func filtersButtonTapped() {
-        print("Фильтры нажаты")
     }
 
     @objc private func datePickerValueChanged(_ sender: UIDatePicker) {
@@ -383,11 +354,11 @@ extension TrackersViewController: UICollectionViewDataSource {
 
         let tracker = visibleCategories[indexPath.section].trackers[indexPath.item]
         let days = completedCount(for: tracker)
-        let completedToday = isCompletedToday(tracker)
+        let isCompleted = isCompletedOnSelectedDate(tracker)
 
         cell.configure(with: tracker,
                        completedDays: days,
-                       isCompletedToday: completedToday)
+                       isCompletedToday: isCompleted)
         cell.delegate = self
 
         return cell
@@ -457,10 +428,10 @@ extension TrackersViewController: TrackerCellDelegate {
 
         let updatedTracker = visibleCategories[indexPath.section].trackers[indexPath.item]
         let days = completedCount(for: updatedTracker)
-        let completedToday = isCompletedToday(updatedTracker)
+        let isCompleted = isCompletedOnSelectedDate(updatedTracker)
 
         cell.configure(with: updatedTracker,
                        completedDays: days,
-                       isCompletedToday: completedToday)
+                       isCompletedToday: isCompleted)
     }
 }

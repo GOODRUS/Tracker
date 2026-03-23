@@ -7,6 +7,8 @@
 
 import Foundation
 
+// MARK: - TrackerCreationDelegate
+
 protocol TrackerCreationDelegate: AnyObject {
     func didCreateTracker(_ tracker: Tracker, in categoryTitle: String)
 }

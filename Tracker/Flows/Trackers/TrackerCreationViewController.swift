@@ -7,13 +7,19 @@
 
 import UIKit
 
+// MARK: - TrackerType
+
 enum TrackerType {
     case habit
     case irregular
 }
 
+// MARK: - TrackerCreationViewController
+
 final class TrackerCreationViewController: UIViewController {
     
+    // MARK: - Delegates
+
     weak var creationDelegate: TrackerCreationDelegate?
 
     // MARK: - Properties
@@ -27,7 +33,6 @@ final class TrackerCreationViewController: UIViewController {
 
     private let trackerType: TrackerType
 
-    // состояние
     private var trackerName: String = "" {
         didSet { updateCreateButtonState() }
     }
@@ -39,8 +44,8 @@ final class TrackerCreationViewController: UIViewController {
         }
     }
 
-    private var keyboardOffset: CGFloat = 0
-
+    private var bottomButtonsConstraint: NSLayoutConstraint?
+    
     // MARK: - Init
 
     init(trackerType: TrackerType) {
@@ -48,8 +53,9 @@ final class TrackerCreationViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
 
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        nil
     }
 
     // MARK: - UI
@@ -157,7 +163,11 @@ final class TrackerCreationViewController: UIViewController {
         nameTextField.becomeFirstResponder()
     }
     
-    // MARK: - ScheduleText
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    // MARK: - Schedule Text
     
     private func scheduleText() -> String? {
         guard !selectedWeekdays.isEmpty else { return nil }
@@ -210,6 +220,11 @@ final class TrackerCreationViewController: UIViewController {
 
         let tableHeight: CGFloat = trackerType == .habit ? 150 : 75
 
+        bottomButtonsConstraint = cancelButton.bottomAnchor.constraint(
+            equalTo: view.safeAreaLayoutGuide.bottomAnchor,
+            constant: -16
+        )
+
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -238,7 +253,7 @@ final class TrackerCreationViewController: UIViewController {
             tableView.bottomAnchor.constraint(equalTo: tableBackgroundView.bottomAnchor),
 
             cancelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            cancelButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            bottomButtonsConstraint!,
             cancelButton.heightAnchor.constraint(equalToConstant: 60),
 
             createButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
@@ -290,7 +305,7 @@ final class TrackerCreationViewController: UIViewController {
 
         createButton.isEnabled = enabled
         createButton.backgroundColor = enabled
-        ? UIColor(red: 0.22, green: 0.49, blue: 0.91, alpha: 1)
+        ? UIColor(red: 0.10, green: 0.11, blue: 0.13, alpha: 1)
         : UIColor.systemGray3
     }
 
@@ -306,14 +321,12 @@ final class TrackerCreationViewController: UIViewController {
             !trackerName.trimmingCharacters(in: .whitespaces).isEmpty
         else { return }
 
-        // Для нерегулярного события расписание оставим пустым
         let schedule = trackerType == .habit ? selectedWeekdays : []
 
         let tracker = Tracker(
-            id: UUID(),
             name: trackerName.trimmingCharacters(in: .whitespaces),
-            color: UIColor(red: 0.2, green: 0.8, blue: 0.4, alpha: 1), // пока дефолтный цвет
-            emoji: "😊",             // временно, позже добавим выбор эмодзи
+            color: UIColor(red: 0.2, green: 0.8, blue: 0.4, alpha: 1),
+            emoji: "😊",
             schedule: schedule
         )
 
@@ -340,6 +353,8 @@ final class TrackerCreationViewController: UIViewController {
         view.endEditing(true)
     }
 
+    // MARK: - Keyboard
+
     @objc private func keyboardWillShow(_ notification: Notification) {
         guard
             let userInfo = notification.userInfo,
@@ -349,20 +364,17 @@ final class TrackerCreationViewController: UIViewController {
         let keyboardFrame = frameValue.cgRectValue
         let keyboardHeight = keyboardFrame.height
 
-        if keyboardOffset == 0 {
-            keyboardOffset = keyboardHeight / 3
-            UIView.animate(withDuration: 0.3) {
-                self.view.transform = CGAffineTransform(translationX: 0, y: -self.keyboardOffset)
-            }
+        bottomButtonsConstraint?.constant = -(keyboardHeight + 16)
+
+        UIView.animate(withDuration: 0.3) {
+            self.view.layoutIfNeeded()
         }
     }
 
     @objc private func keyboardWillHide(_ notification: Notification) {
-        if keyboardOffset != 0 {
-            UIView.animate(withDuration: 0.3) {
-                self.view.transform = .identity
-            }
-            keyboardOffset = 0
+        bottomButtonsConstraint?.constant = -16
+        UIView.animate(withDuration: 0.3) {
+            self.view.layoutIfNeeded()
         }
     }
 }

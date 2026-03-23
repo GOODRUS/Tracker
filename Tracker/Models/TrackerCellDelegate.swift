@@ -7,6 +7,8 @@
 
 import Foundation
 
+// MARK: - TrackerCellDelegate
+
 protocol TrackerCellDelegate: AnyObject {
     func didTapComplete(for tracker: Tracker, in cell: TrackerCell)
 }
