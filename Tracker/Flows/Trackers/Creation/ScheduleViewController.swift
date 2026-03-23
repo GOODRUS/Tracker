@@ -26,8 +26,9 @@ final class ScheduleViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
 
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        nil
     }
 
     // MARK: - UI
@@ -103,26 +104,22 @@ final class ScheduleViewController: UIViewController {
 
         let rowHeight: CGFloat = 75
         let rowsCount = CGFloat(Weekday.allCases.count)
-        let tableHeight = rowHeight * rowsCount // 7 * 75 = 525
+        let tableHeight = rowHeight * rowsCount 
 
         NSLayoutConstraint.activate([
-            // Заголовок "Расписание"
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 
-            // Рамка с таблицей — огромный отступ, чисто для проверки
             tableBackgroundView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
             tableBackgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             tableBackgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             tableBackgroundView.heightAnchor.constraint(equalToConstant: tableHeight),
 
-            // Таблица заполняет рамку
             tableView.topAnchor.constraint(equalTo: tableBackgroundView.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: tableBackgroundView.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: tableBackgroundView.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: tableBackgroundView.bottomAnchor),
 
-            // Кнопка "Готово"
             doneButton.topAnchor.constraint(equalTo: tableBackgroundView.bottomAnchor, constant: 56),
             doneButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             doneButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
@@ -208,7 +205,6 @@ extension ScheduleViewController: UITableViewDelegate {
         let lastRowIndex = tableView.numberOfRows(inSection: indexPath.section) - 1
 
         if indexPath.row == lastRowIndex {
-            // убираем разделитель под "Воскресенье"
             cell.separatorInset = UIEdgeInsets(
                 top: 0,
                 left: cell.bounds.width,

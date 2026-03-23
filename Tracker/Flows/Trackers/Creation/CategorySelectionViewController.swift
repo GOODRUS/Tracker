@@ -75,12 +75,14 @@ final class CategorySelectionViewController: UIViewController {
     }
 
     private func setupActions() {
-        addButton.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
+        addButton.addAction(UIAction { [weak self] _ in
+            self?.addButtonTapped()
+        }, for: .touchUpInside)
     }
 
     // MARK: - Actions
 
-    @objc private func addButtonTapped() {
+   private func addButtonTapped() {
         let alert = UIAlertController(
             title: "Новая категория",
             message: "Введите название категории",

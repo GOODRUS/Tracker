@@ -322,7 +322,7 @@ final class TrackersViewController: UIViewController {
 
         if let sheet = typeVC.sheetPresentationController {
             sheet.detents = [.large()]
-            sheet.prefersGrabberVisible = true
+            sheet.prefersGrabberVisible = false
             sheet.preferredCornerRadius = 16
         }
 

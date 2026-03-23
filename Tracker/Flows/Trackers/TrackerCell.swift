@@ -167,25 +167,21 @@ final class TrackerCell: UICollectionViewCell {
     private func updateActionButton(isCompletedToday: Bool) {
         let plusColor = UIColor(red: 0.20, green: 0.81, blue: 0.41, alpha: 1)
 
-        if isCompletedToday {
-            let checkConfig = UIImage.SymbolConfiguration(pointSize: 12, weight: .bold)
-            let checkImage = UIImage(systemName: "checkmark")?.applyingSymbolConfiguration(checkConfig)
+        let symbolSize: CGFloat = isCompletedToday ? 12 : 11
+        let symbolWeight: UIImage.SymbolWeight = isCompletedToday ? .bold : .medium
+        let config = UIImage.SymbolConfiguration(pointSize: symbolSize, weight: symbolWeight)
 
-            actionButton.setImage(checkImage, for: .normal)
-            actionButton.setTitle(nil, for: .normal)
-            actionButton.tintColor = .white
-            actionButton.backgroundColor = plusColor.withAlphaComponent(0.3)
-        } else {
-            let plusConfig = UIImage.SymbolConfiguration(pointSize: 11, weight: .medium)
-            let plusImage = UIImage(systemName: "plus")?.applyingSymbolConfiguration(plusConfig)
+        let systemName = isCompletedToday ? "checkmark" : "plus"
+        let image = UIImage(systemName: systemName, withConfiguration: config)
 
-            actionButton.setImage(plusImage, for: .normal)
-            actionButton.setTitle(nil, for: .normal)
-            actionButton.tintColor = .white
-            actionButton.backgroundColor = plusColor
-        }
+        actionButton.setImage(image, for: .normal)
+        actionButton.setTitle(nil, for: .normal)
+        actionButton.tintColor = .white
+        actionButton.backgroundColor = isCompletedToday
+            ? plusColor.withAlphaComponent(0.3)
+            : plusColor
     }
-
+    
     // MARK: - Actions
 
     @objc private func actionButtonTapped() {

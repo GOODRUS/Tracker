@@ -31,32 +31,30 @@ final class RootTabBarController: UITabBarController {
         let trackersNav = UINavigationController(rootViewController: trackersVC)
         let statisticsNav = UINavigationController(rootViewController: statisticsVC)
 
-        // MARK: - Trackers Tab Icon
-
-        var trackersImage = UIImage(named: "record.circle.fill")
-        if let baseImage = trackersImage {
-            let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
-            trackersImage = baseImage.applyingSymbolConfiguration(config) ?? baseImage
-        }
+        // Trackers Tab Icon
+        let trackersConfig = UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)
+        let trackersImage = UIImage(
+            systemName: "record.circle.fill",
+            withConfiguration: trackersConfig
+        )?.withRenderingMode(.alwaysTemplate)
 
         trackersNav.tabBarItem = UITabBarItem(
             title: "Трекеры",
-            image: trackersImage?.withRenderingMode(.alwaysTemplate),
-            selectedImage: trackersImage?.withRenderingMode(.alwaysTemplate)
+            image: trackersImage,
+            selectedImage: trackersImage
         )
 
-        // MARK: - Statistics Tab Icon
-
-        var statisticsImage = UIImage(named: "hare.fill")
-        if let baseImage = statisticsImage {
-            let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)
-            statisticsImage = baseImage.applyingSymbolConfiguration(config) ?? baseImage
-        }
+        // Statistics Tab Icon
+        let statisticsConfig = UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)
+        let statisticsImage = UIImage(
+            systemName: "hare.fill",
+            withConfiguration: statisticsConfig
+        )?.withRenderingMode(.alwaysTemplate)
 
         statisticsNav.tabBarItem = UITabBarItem(
             title: "Статистика",
-            image: statisticsImage?.withRenderingMode(.alwaysTemplate),
-            selectedImage: statisticsImage?.withRenderingMode(.alwaysTemplate)
+            image: statisticsImage,
+            selectedImage: statisticsImage
         )
 
         viewControllers = [trackersNav, statisticsNav]

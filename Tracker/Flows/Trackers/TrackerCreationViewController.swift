@@ -55,8 +55,9 @@ final class TrackerCreationViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
 
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        nil
     }
 
     // MARK: - UI
@@ -325,7 +326,6 @@ final class TrackerCreationViewController: UIViewController {
         let schedule = trackerType == .habit ? selectedWeekdays : []
 
         let tracker = Tracker(
-            id: UUID(),
             name: trackerName.trimmingCharacters(in: .whitespaces),
             color: UIColor(red: 0.2, green: 0.8, blue: 0.4, alpha: 1),
             emoji: "😊",
@@ -366,7 +366,6 @@ final class TrackerCreationViewController: UIViewController {
         let keyboardFrame = frameValue.cgRectValue
         let keyboardHeight = keyboardFrame.height
 
-        // поднимаем блок кнопок над клавиатурой
         bottomButtonsConstraint?.constant = -(keyboardHeight + 16)
 
         UIView.animate(withDuration: 0.3) {

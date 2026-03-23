@@ -7,7 +7,7 @@
 
 import UIKit
 
-// MARK: - Weekday (Расписание)
+// MARK: - Weekday
 
 enum Weekday: Int, CaseIterable {
     case monday = 1
@@ -22,7 +22,7 @@ enum Weekday: Int, CaseIterable {
 // MARK: - Models
 
 struct Tracker {
-    let id: UUID
+    let id: UUID = UUID()
     let name: String
     let color: UIColor
     let emoji: String
