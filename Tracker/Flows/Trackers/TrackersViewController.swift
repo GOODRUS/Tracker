@@ -174,6 +174,7 @@ final class TrackersViewController: UIViewController {
         setupFiltersButton()
         updatePlaceholderVisibility()
     }
+    
 
     // MARK: - Setup
 

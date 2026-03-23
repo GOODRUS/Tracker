@@ -7,13 +7,9 @@
 
 import UIKit
 
-// MARK: - ScheduleSelectionDelegate
-
 protocol ScheduleSelectionDelegate: AnyObject {
     func didSelectSchedule(_ weekdays: [Weekday])
 }
-
-// MARK: - ScheduleViewController
 
 final class ScheduleViewController: UIViewController {
 
@@ -36,10 +32,36 @@ final class ScheduleViewController: UIViewController {
 
     // MARK: - UI
 
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Расписание"
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        label.textAlignment = .center
+        label.textColor = UIColor(red: 0.10, green: 0.11, blue: 0.13, alpha: 1) 
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private let tableBackgroundView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(
+            red: 0xE6 / 255.0,
+            green: 0xE8 / 255.0,
+            blue: 0xEB / 255.0,
+            alpha: 0.3
+        )
+        view.layer.cornerRadius = 16
+        view.clipsToBounds = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
     private let tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.isScrollEnabled = false
+        tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        tableView.backgroundColor = .clear
         return tableView
     }()
 
@@ -59,7 +81,6 @@ final class ScheduleViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        title = "Расписание"
 
         setupTableView()
         setupLayout()
@@ -75,15 +96,34 @@ final class ScheduleViewController: UIViewController {
     }
 
     private func setupLayout() {
-        view.addSubview(tableView)
+        view.addSubview(titleLabel)
+        view.addSubview(tableBackgroundView)
+        tableBackgroundView.addSubview(tableView)
         view.addSubview(doneButton)
 
-        NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+        let rowHeight: CGFloat = 75
+        let rowsCount = CGFloat(Weekday.allCases.count)
+        let tableHeight = rowHeight * rowsCount // 7 * 75 = 525
 
-            doneButton.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 24),
+        NSLayoutConstraint.activate([
+            // Заголовок "Расписание"
+            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
+            titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+
+            // Рамка с таблицей — огромный отступ, чисто для проверки
+            tableBackgroundView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
+            tableBackgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            tableBackgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            tableBackgroundView.heightAnchor.constraint(equalToConstant: tableHeight),
+
+            // Таблица заполняет рамку
+            tableView.topAnchor.constraint(equalTo: tableBackgroundView.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: tableBackgroundView.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: tableBackgroundView.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: tableBackgroundView.bottomAnchor),
+
+            // Кнопка "Готово"
+            doneButton.topAnchor.constraint(equalTo: tableBackgroundView.bottomAnchor, constant: 56),
             doneButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             doneButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             doneButton.heightAnchor.constraint(equalToConstant: 60),
@@ -98,7 +138,8 @@ final class ScheduleViewController: UIViewController {
     // MARK: - Actions
 
     @objc private func doneTapped() {
-        delegate?.didSelectSchedule(Array(selectedWeekdays).sorted { $0.rawValue < $1.rawValue })
+        let sorted = Array(selectedWeekdays).sorted { $0.rawValue < $1.rawValue }
+        delegate?.didSelectSchedule(sorted)
         dismiss(animated: true)
     }
 
@@ -140,9 +181,12 @@ extension ScheduleViewController: UITableViewDataSource {
         let switchView = UISwitch()
         switchView.isOn = selectedWeekdays.contains(weekday)
         switchView.tag = weekday.rawValue
-        switchView.onTintColor = UIColor(red: 0.22, green: 0.45, blue: 0.91, alpha: 1)
+        switchView.onTintColor = UIColor(red: 0.22, green: 0.45, blue: 0.91, alpha: 1) // #3772E7
         switchView.addTarget(self, action: #selector(switchChanged(_:)), for: .valueChanged)
         cell.accessoryView = switchView
+
+        cell.selectionStyle = .none
+        cell.backgroundColor = .clear
 
         return cell
     }
@@ -157,7 +201,29 @@ extension ScheduleViewController: UITableViewDelegate {
         75
     }
 
-    // MARK: - Switch Handling
+    func tableView(_ tableView: UITableView,
+                   willDisplay cell: UITableViewCell,
+                   forRowAt indexPath: IndexPath) {
+
+        let lastRowIndex = tableView.numberOfRows(inSection: indexPath.section) - 1
+
+        if indexPath.row == lastRowIndex {
+            // убираем разделитель под "Воскресенье"
+            cell.separatorInset = UIEdgeInsets(
+                top: 0,
+                left: cell.bounds.width,
+                bottom: 0,
+                right: 0
+            )
+        } else {
+            cell.separatorInset = UIEdgeInsets(
+                top: 0,
+                left: 16,
+                bottom: 0,
+                right: 16
+            )
+        }
+    }
 
     @objc private func switchChanged(_ sender: UISwitch) {
         guard let weekday = Weekday(rawValue: sender.tag) else { return }
